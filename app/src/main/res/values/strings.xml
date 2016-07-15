@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Ensamble</string>
+    <string name="play">Play</string>
+    <string name="stop">Stop</string>
+    <string name="prepare">Preparing your device</string>
+    <string name="download">Downloading audio</string>
+    <string name="waiting">Waiting for other devices</string>
+
+    <string name="playing">Ready</string>
+</resources>

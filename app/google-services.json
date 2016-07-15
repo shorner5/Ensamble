@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "307096658755",
+    "firebase_url": "https://ensamble-82ea3.firebaseio.com",
+    "project_id": "ensamble-82ea3",
+    "storage_bucket": "ensamble-82ea3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:307096658755:android:a0a11b7ce8872662",
+        "android_client_info": {
+          "package_name": "com.stuhorner.ensamble"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "307096658755-o4a7sa59l5kmis5cblmuo0jinjsail2c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAxNyOj11evRdRmHUDeAd1cJVhlGcTE-Zo"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
