@@ -112,11 +112,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Map<String, Long> map = (Map)dataSnapshot.getValue();
-                Log.d("data", dataSnapshot.getValue().toString());
                 boolean ready = true;
                 for (Long entry : map.values())
                 {
-                    Log.d("value", Long.toString(entry));
                     if (entry == 0) {
                         ready = false;
                     }
@@ -260,10 +258,10 @@ public class MainActivity extends AppCompatActivity {
         waiting_done.setVisibility(View.VISIBLE);
 
         //for master device
-        //play.setVisibility(View.VISIBLE);
+         play.setVisibility(View.VISIBLE);
 
         //for slave devices
-        startServiceForReceivers();
+        //startServiceForReceivers();
     }
 
 }

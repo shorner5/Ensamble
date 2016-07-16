@@ -31,6 +31,7 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
     MediaPlayer mediaPlayer;
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     DatabaseReference mRef = database.getReference();
+    long server_start_time = 0;
 
     public MediaService() {
     }
@@ -69,15 +70,16 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
 
     @Override
     public void onPrepared(final MediaPlayer player) {
+        prepareOffsetTiming();
         Log.d("onPrepared", "here");
         mRef.child("play_time").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (!dataSnapshot.getValue().toString().equals("0")) {
-                    long server_start_time = Long.parseLong(dataSnapshot.getValue().toString());
+                    server_start_time = Long.parseLong(dataSnapshot.getValue().toString());
                     mRef.child("sub_play_time").child(UID).setValue(ServerValue.TIMESTAMP);
                     mediaPlayer.start();
-                    offsetTiming(server_start_time, mediaPlayer);
+                    Log.d("starting", "mediaPlayer");
                     mRef.child("play_time").removeEventListener(this);
                 }
             }
@@ -89,23 +91,24 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
         });
     }
 
-    private void offsetTiming(final long server_start_time, final MediaPlayer mp) {
-        mRef.child("sub_play_time").child(UID).addListenerForSingleValueEvent(new ValueEventListener() {
+    private void prepareOffsetTiming() {
+        mRef.child("sub_play_time").child(UID).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                long start_offset = Long.parseLong(dataSnapshot.getValue().toString()) - server_start_time;
-                Log.d("start_offset", Long.toString(start_offset));
-                Log.d("sub_play_time", dataSnapshot.getValue().toString());
-                Log.d("server_start_time", Long.toString(server_start_time));
-                Log.d("current position", Integer.toString(mp.getCurrentPosition()));
-                if (mp.getDuration() > (mp.getCurrentPosition() + start_offset)) {
-                    Log.d("applying offset", "here");
-                    mp.seekTo((int) (mp.getCurrentPosition() + start_offset));
+                if (!dataSnapshot.getValue().toString().equals("0")) {
+                    long start_offset = Long.parseLong(dataSnapshot.getValue().toString()) - server_start_time;
+                    Log.d("start_offset", Long.toString(start_offset));
+                    Log.d("sub_play_time", dataSnapshot.getValue().toString());
+                    Log.d("server_start_time", Long.toString(server_start_time));
+                    Log.d("current position", Integer.toString(mediaPlayer.getCurrentPosition()));
+                    if (mediaPlayer.getDuration() > (mediaPlayer.getCurrentPosition() + start_offset)) {
+                        Log.d("applying offset", "here");
+                        mediaPlayer.seekTo((int) (mediaPlayer.getCurrentPosition() + start_offset));
+                    } else {
+                        mediaPlayer.stop();
+                    }
+                    mRef.child("sub_play_time").child(UID).removeEventListener(this);
                 }
-                else {
-                    mp.stop();
-                }
-                mRef.child("sub_play_time").child(UID).removeEventListener(this);
             }
 
             @Override
@@ -122,7 +125,6 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
 
     @Override
     public IBinder onBind(Intent intent) {
-        // TODO: Return the communication channel to the service.
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
@@ -131,8 +133,13 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
         mediaPlayer.release();
         mediaPlayer = null;
         mRef.child("play_time").setValue(0);
+        mRef.child("sub_play_time").child(UID).setValue(0);
 
         //for slave device
+        //restartService();
+    }
+
+    private void restartService() {
         Intent intent = new Intent(MediaService.this, MediaService.class);
         intent.setAction(ACTION_PLAY);
         intent.putExtra("url", audioURL);
@@ -147,6 +154,7 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher))
                 .setOngoing(true)
+                .setAutoCancel(true)
                 .build();
         notification.flags = Notification.FLAG_AUTO_CANCEL;
         startForeground(1, notification);
